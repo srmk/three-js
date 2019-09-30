@@ -1,26 +1,73 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component, Suspense, Fragment } from 'react';
+import { connect } from "react-redux";
+import { bindActionCreators } from 'redux';
+// import THREE from "./lib/three";
+// import PropTypes from 'prop-types';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import SimulationEntryPoint from "./components/entry_point";
+
+import ErrorBoundary from "./error_boundary/error_boundaries";
+import { updateData } from "./action/actions";
+
+type Props = {
+  isLoaded: Boolean,
+  updateData: () => {}
+};
+
+class App extends Component<Props> {
+  constructor() {
+    super();
+
+    this.container = null;
+    this.entryPoint = new SimulationEntryPoint(this.container);
+  }
+
+  componentDidMount() {
+    this.entryPoint = new SimulationEntryPoint(this.container);
+    this.entryPoint.init();
+    this.entryPoint.animate();
+  }
+
+  // componentWillUnmount() {
+  //   if (this.entryPoint) {
+  //     this.entryPoint.dispose();
+  //   }
+  // }
+
+  render() {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Fragment>
+            <div
+              className={"simulation-container"}
+              ref={ele => {
+                this.container = ele;
+              }}
+            />
+          </Fragment>
+        </Suspense>
+      </ErrorBoundary>
+    );
+  }
 }
 
-export default App;
+App.defaultProps = {
+  isLoaded: false,
+};
+
+const mapStateToProps = ({ dynamicStore }) => {
+  const { isLoaded } = dynamicStore;
+  return {
+    isLoaded
+  }
+}
+
+const mapDispatchToProps = (dispatch) => ({
+  ...bindActionCreators({
+    updateData
+  }, dispatch),
+})
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
