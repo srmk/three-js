@@ -19,13 +19,13 @@ class App extends Component<Props> {
     super();
 
     this.container = null;
-    this.entryPoint = new SimulationEntryPoint(this.container);
+    this.entryPoint = null;
   }
 
   componentDidMount() {
-    this.entryPoint = new SimulationEntryPoint(this.container);
-    this.entryPoint.init();
-    this.entryPoint.animate();
+    this.entryPoint = new SimulationEntryPoint(
+      this.container
+    );
   }
 
   // componentWillUnmount() {
